@@ -1,0 +1,244 @@
+@import url('https://fonts.googleapis.com/css2?family=Bai+Jamjuree:wght@200&family=Jura:wght@300&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Rubik:wght@300&display=swap');
+
+h1 { font-size: 50px;  text-align: center; /*margin-bottom: 1rem;*/
+	font-family: 'Rubik', sans-serif;
+	font-size: 72px;
+	line-height: 72px;
+	font-weight: 700;
+}
+#doe {
+	width: .7em;
+	position: absolute;
+	cursor: pointer;
+}
+.tooltip {
+	display: none;
+	font-size: 1em;
+	position: absolute;
+	color: white;
+	background-color: black;
+	border-radius: 10px;
+	padding: 5px;
+	font-weight: bold;
+}
+.animar {
+	width: 0.9em !important;
+	animation: shake 0.5s, example 0.5s;
+animation-iteration-count: infinite; }
+@keyframes shake {
+	0% { transform: translate(1px, 1px) rotate(0deg); font-color: #f00;}
+	10% { transform: translate(-1px, -2px) rotate(-1deg); }
+	20% { transform: translate(-3px, 0px) rotate(1deg); }
+	30% { transform: translate(3px, 2px) rotate(0deg); }
+	40% { transform: translate(1px, -1px) rotate(1deg); }
+	50% { transform: translate(-1px, 2px) rotate(-1deg); }
+	60% { transform: translate(-3px, 1px) rotate(0deg); }
+	70% { transform: translate(3px, 1px) rotate(-1deg); }
+	80% { transform: translate(-1px, -1px) rotate(1deg); }
+	90% { transform: translate(1px, 2px) rotate(0deg); }
+100% { transform: translate(1px, -2px) rotate(-1deg); } }
+@keyframes example {
+	0% {color: red;}
+	25% {color: yellow;}
+	50% {color: blue;}
+100% {color: green;} }
+
+h2{
+	font-size: 2em;
+	font-family: 'Jura', sans-serif;
+	font-style: normal;
+	text-align: center;
+	margin: 0;
+}
+body center h3 {
+	font-family: 'Rubik', sans-serif;
+	font-size: 30px;
+	/*     line-height: 1px; */
+	font-style: normal;
+}
+
+html body {
+	font-family: 'Rubik', sans-serif;
+	/*     font-style: normal; */
+	min-height: 100% !important; height: 100%; margin: 0;
+}
+
+body {
+	text-align: justify;
+	padding: 10px;
+	/*line-height: 20 px;*/
+	/*height: auto; width: 209mm;*/
+}
+
+r{
+	color:red;
+}
+
+#biblia { padding: 20px;
+	/* margin-top: 50px;*/
+	font-family: 'Jura', sans-serif;
+	height:auto;
+	display:block;
+	position: relative;
+	font-size: 20px;
+}
+
+#c{ font-size: 80px;
+	font-weight: bold;
+	float: left;
+	line-height: 60px;
+	vertical-align: baseline;
+}
+sup { vertical-align: top; font-size: 13.333333333333px;  font-weight: bold;}
+
+#logo {
+	display: block;
+	margin-left: auto;
+	margin-right: auto;
+	width: 70%;
+	text-align: center;
+}
+.col1 {
+	float: left;
+	width: 20%;
+}
+.col2 {
+	float: left;
+	width: 80%;
+
+}
+/* Clear floats after the columns */
+.row:after {
+	content: "";
+	display: table;
+	clear: both;
+}
+.col2 p {
+	font-family: 'Rubik', sans-serif;
+	display: inline;
+	font-size: 20px;
+	margin: 5px;
+}
+.col1 p:hover {
+	background-color: darkorange;
+}
+
+.qrfundo{
+	height: -webkit-fill-available;
+	width: 100%;
+	display:none;
+	-webkit-transform: translateX(-50%) translateY(-50%);
+	transform: translateX(-50%) translateY(-50%);
+	position: fixed;
+	left: 50%;
+	top: 50%;
+	background-color: white;
+	text-align: -webkit-center;
+	padding: 2%;
+
+}
+#pix_copiacola{
+	display: flex;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	border: dashed;
+	width: 30%;
+}
+h3 {
+	text-align: center;
+}
+#logo_pix{
+	width: 20%;margin: auto; display: block;
+}
+.copy{
+	cursor: pointer;
+	height: 35vw;
+	width: 35vw;
+}
+.copy:hover .div_copia{opacity:1}
+.copy:hover .img{  opacity:0.6;-webkit-filter: blur(2px);}
+
+.div_copia{
+	background-color: orange;
+	border-radius: 10px;
+	padding: 10px;
+	transform: translateY(-200%);
+	left: 0;
+	right: 0;
+	opacity: 0;
+	transition: opacity .2s linear;
+}
+
+.img{
+	transition: opacity .2s linear;
+	opacity: 1;
+	width: 100%;
+	display: block;
+}
+
+
+
+
+
+
+
+
+
+.col1 p {
+
+	display: inline-block;
+	font-size: 20px;
+	line-height: 20px;
+	margin: 5px;
+	cursor: pointer;
+	width: 25px;
+	border-radius: 10px;
+	width: 25px;
+	padding: 5px;
+	text-align: center;
+}
+/* Responsive layout - makes the three columns stack on top of each other instead of next to each other */
+@media screen and (max-width: 600px) {
+	.col1,.col2 {
+		width: 100%;
+	}
+	.copy{
+		width: 80%;
+		padding:5%;
+	}
+	#logo_pix{
+		width: 80%;
+	}
+}
+
+#versos {
+	text-align: justify;
+	display: block;
+}
+select, input, .input-group{
+	width: 100%;
+	box-sizing: border-box;
+	font-size: 20px;
+
+}
+.input-group {
+	border-collapse: separate;
+	display: table;
+	position: relative;
+}
+
+input {
+	position: relative;
+	float: left;
+	width: calc(100% - 2em);
+	margin: 0 ;
+	display: table-cell;
+}
+
+button {
+	position: absolute;
+	height: 100%;
+	width:3em;
+}

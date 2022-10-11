@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <link rel="stylesheet" href="./html/style.css">
+    <title>Bíblia NVA</title>
+    <link rel="icon" type="image/x-icon" href="./html/logo.png">
+</head>
+<body>
+    <script>
+    // Variaveis de escolha OPcionais de controle do usuario
+    var op_livro, op_capitulos; // guarda o livro atual no loop
+    var grifar = ["Yahweh","Deus"]; // Destacar palavras!!
+    // Nomes dos livros em ordem de Gênesis (1) a Apocalipse (66)
+    const livro=["","Gênesis","Êxodo","Levítico","Números","Deuteronômio","Josué","Juízes","Rute","1 Samuel","2 Samuel","1 Reis","2 Reis","1 Crônicas","2 Crônicas","Esdras","Neemias","Ester","Jó","Salmos","Provérbios","Eclesiastes","Cânticos","Isaías","Jeremias","Lamentações","Ezequiel","Daniel","Oséias","Joel","Amós","Obadias","Jonas","Miquéias","Naum","Habacuque","Sofonias","Ageu","Zacarias","Malaquias","Mateus","Marcos","Lucas","João","Atos","Romanos","1 Coríntios","2 Coríntios","Gálatas","Efésios","Filipenses","Colossenses","1 Tessalonicenses","2 Tessalonicenses","1 Timóteo","2 Timóteo","Tito","Filemom","Hebreus","Tiago","1 Pedro","2 Pedro","1 João","2 João","3 João","Judas","Apocalipse"];
+
+    // Variaveis de controle representa o livro e o capitulo.
+    var set_livro=false; // false para abrir um verso aleatório
+    var set_capitulo=0;  // seta capitulo em 0
+    var set_versiculo=""; //sublinha o versiculo no contexto
+    // Object.keys(bibliaNVA).length; numero de versos
+    var exbir_aleatorio=Math.floor(31105 * Math.random()); // Um numero aleatório em todos os versiculos
+
+
+    //Buscas
+    var total_busca = 1; // numero de buscas achadas
+    var busca = "";     // palavras a ser buscadas
+    var termos = [];   // palavras buscadas
+    var bibliaNVA;    // Variavel responsavel por guardar toda a biblia em json
+
+    // ini do document ready -> Assim que a pagina é carregada faça
+    $(document).ready(function() {
+        /* COPIA AO CLICAR*/
+        $(".copy,img,.qrfundo").on({
+
+            click: function(e) {
+              // alert("kkkk");
+
+              document.execCommand("copy");
+            },
+            copy: function(event) {
+              if (event.originalEvent.clipboardData) {
+                event.originalEvent.clipboardData.setData("text/plain", $("#pix_copiacola").text());
+                $('#mudar_texto').html("Copiado com Sucesso!!").animate({opacity:1}, 100).animate({opacity:0}, 2000);
+                event.preventDefault();
+              }
+            }
+        });
+
+        $( "#logo,#doe" ).hover(function() {
+            $('#doe').toggleClass('animar');
+        });
+
+        if ($(window).width() > 500)
+        $('[legenda]').hover(function(event) {
+            var toolTip = $(this).attr('legenda');
+            $('<span class="tooltip"></span>').text(toolTip)
+            .appendTo('body')
+            .css('top', (event.pageY - 10) + 'px')
+            .css('left', (event.pageX + 20) + 'px')
+            .fadeIn('slow');
+            }, function() {
+            $('.tooltip').remove();
+            }).mousemove(function(event) {
+            $('.tooltip')
+            .css('top', (event.pageY - 10) + 'px')
+            .css('left', (event.pageX + 20) + 'px');
+        });
+        // Caso tenha parametros da URL ou abra pelo link
+        set_livro = $.urlParam('l') ? $.urlParam('l') : false; //Pega o parametro l da url ou false para aleatorio
+        set_capitulo = $.urlParam('c') ? $.urlParam('c') : 1;
+        set_versiculo = $.urlParam('v') ? $.urlParam('v') : "";
+        $("#buscar").val(decodeURIComponent($.urlParam('buscar')));
+
+
+        // Leio o json da biblia toda e carrego pra uma variavel;
+        $.getJSON('./html/bibliaNVA.json', function(tudo){
+            bibliaNVA = tudo;
+            if($("#buscar").val() != "" && $("#buscar").val().length>2 ) // caso tenha uma busca vinda da URL
+            buscar_acao();
+          else
+            mostre();
+        });
+        //Object.keys(bibliaNVA).length;
+        //Object.keys(bibliaNVA).length;
+
+
+        // Escolha dos livros depois de listado (Genesis e Apocalipse)
+        $('select').on('change', function() {
+            set_livro= this.value;
+            set_capitulo=1;
+            set_versiculo="";
+            busca = "";
+            mostre();
+        });
+
+        // Apos escolhido o livro é listado os capitulos para escolha
+        $( ".op_capitulos" ).on( "click", "p", function() {
+            set_capitulo = this.id;
+            set_versiculo="";
+            mostre();
+        });
+
+        // link dos versiculos buscados
+        $( "#versos" ).on( "click", "a", function() {
+            set_livro = $.urlParam("l",this);
+            set_capitulo = $.urlParam("c",this);
+            set_versiculo = $.urlParam("v",this);
+            window.location.replace("#?buscar=" + termos.join(" ") + "&l=" + set_livro + "&c=" + set_capitulo + "&v=" + set_versiculo);
+            busca = "";
+            mostre();
+            event.preventDefault();  // evita abrir o link
+
+        });
+
+        // Excuta a busca com a tecla enter
+        $('#buscar').on('keypress', function(e){
+            if(e.keyCode == '13'){
+              set_versiculo="";
+              buscar_acao();
+
+            }
+        });
+
+        $('#doe').on('click', function(e){
+
+            set_versiculo="24";
+
+            set_livro="1";
+            set_capitulo="5";
+            mostre();
+            setTimeout(function() { $(".qrfundo").show(500).delay(5000).hide(500)}, 2000);
+
+
+
+
+
+        });
+
+      }); // fim do document ready
+
+      // Ação  de buscar as palavras
+      function buscar_acao (){
+        busca = $("#buscar").val(); // pega o valor do input
+
+          if (busca.length<=2) return;
+          termos= busca.split(' ').filter(Boolean) ; //remove arrays vazios, remove espaços a mais.
+          window.location.replace("#?buscar=" + termos.join(" ") + "&l=" + set_livro + "&c=" + set_capitulo + "&v=" + set_versiculo);
+          busca = sem_acentos (busca); // remove acentos
+          busca = busca.split(' ').filter(Boolean);
+          busca = busca.join(".*")+"|"+busca.reverse().join(".*"); //criar a regex  (p1 AND p2) OR (p2 AND p1) pao.*vida|vida.*pao
+          if (set_versiculo != "")
+          busca="";
+
+          mostre();
+        }
+
+
+
+        // Limpa a tela para reescrever os versos escolhidos ou busados
+        function mostre (){
+
+          $('.op_capitulos,#versos,#total_busca,#livro,#capitulos,#op_livros').html(""); // zera todas tags
+          total_busca = 1; // zera o total de termos de buscas
+
+          if (!set_livro){ // Abre verso aleatorio
+            set_livro= bibliaNVA[exbir_aleatorio]['l'];
+            set_capitulo= bibliaNVA[exbir_aleatorio]['c'];
+            set_versiculo= bibliaNVA[exbir_aleatorio]['n'];
+          }
+
+
+          bibliaNVA.forEach(mostre_versos); //percorro todos os versos
+
+          grifar.forEach(item => {  //grifar paalvras em negrito
+              $("#versos").html( $("#versos").html().replace(new RegExp(item, "g"), '<b>'+item+'</b>'));
+          });
+
+          termos.forEach(item => { // grifa termos de busca
+              if(item.length>1){ //ignora palavras de uma letra só bug da tag <a> palavra "a"
+                var regex = new RegExp("("+item+")", 'gi');
+                $("#versos").html( $("#versos").html().replace(regex, "<r>$1</r>"));
+              }
+          });
+
+          if ($("#foq").length){
+            $("html").animate({ scrollTop: $("#foq").offset().top-($(window).height()/2)},800); //
+            // $("#foq").scrollTo('#foq', 1000, {offset:-50});
+            $("#foq").fadeTo(1000, 1, function() { $( this ).css( "background-color", "gold" )})
+          }
+
+          //$( window ).scroll(function() { alert("top")}); //Futuro botão topo
+
+        }
+
+        // Percorre toda as linhas da Biblia
+        function mostre_versos(linha) {
+          // set_aleatorio++;
+          //Listo os livros para escolha no select
+          if (linha.l != op_livro){
+            if (set_livro==linha.l)
+            $("#op_livros").append($('<option>', {value:linha.l, text:livro[linha.l], selected:true}));
+          else
+            $("#op_livros").append($('<option>', {value:linha.l, text:livro[linha.l]}));
+            op_livro = linha.l;
+          } // a b c b  b
+
+
+          // Quando tem palavra para busca
+          if (busca != ""){
+            versos_sem_acentos = sem_acentos(linha.v); // remove os acentos dos versos para uma melhor busca
+            if (versos_sem_acentos.search(busca,"gi")!=-1) { // Caso tenha a palavra no verso
+              // Escreve o total de versos achados
+              $('#total_busca').html("<p>A busca <r>'"+  $("#buscar").val() +"'</r> resultou em <b>"+(total_busca++)+"</b> versos </p>");
+              // Escreve o verso achado com link para o capitulo(contexto)
+              $('#versos').append('<br> <b>&#62;&#62;</b> '+linha.v+' <a target="_blank" href="?l='+linha.l+'&c='+linha.c+'&v='+linha.n+'"><b>'+ livro[linha.l] +' '+linha.c+'.'+linha.n+'</b></a><br>');
+
+            }
+            return// retorno caso nao tenha a palavra nao exibir nada a baixo..
+          }
+
+          // Lista capitulos do livro escolhido
+            if (linha.l == set_livro) // Se é o livro atual listar capitulos
+            if (linha.c != op_capitulos){ // apenas para nao repetir umas vez que cada versos contem livro, cap,
+              if (set_capitulo==linha.c)
+              $(".op_capitulos").append('<p style="background-color: #ccc;" id="'+linha.c+'">'+linha.c+'</p>')
+            else
+              $(".op_capitulos").append('<p id="'+linha.c+'">'+linha.c+'</p>');
+
+              op_capitulos = linha.c;
+            }
+
+            // Escreve os versiculos do livro escolhido
+              if (linha.l == set_livro) // livro setado
+              if (linha.c == set_capitulo){ // capitulo setado
+                $('#livro').html(livro[linha.l]); // Nome do Livro
+                  $('#capitulos').html("<p id='c' id='ir_"+linha.l+"_"+linha.c+"'>" + linha.c + " </p>"); // Nome do Livro
+
+                    if (set_versiculo==linha.n) // sublinha o versiculo no contexto
+                    $('#versos').append('<sup>'+linha.n+'</sup>'+'<u id="foq"><p id="'+linha.n+'">'+linha.v+'</p></u>');
+                  else
+                    $('#versos').append('<sup>'+linha.n+'</sup>'+'<p id="'+linha.n+'">'+linha.v+'</p>');
+                  }
+                }
+
+                // FUNÇÃO Remove os acentos para fazer uma busca perfeita!
+                sem_acentos = function(s){
+                  var r = s?.toLowerCase() || ''; //? teste string vazia não aplica o remover acentos ou (s || '').toLowerCase();
+                  non_asciis = {'a': '[àáâãäå]', 'ae': 'æ', 'c': 'ç', 'e': '[èéêë]', 'i': '[ìíîï]', 'n': 'ñ', 'o': '[òóôõö]', 'oe': 'œ', 'u': '[ùúûűü]', 'y': '[ýÿ]'};
+                  for (i in non_asciis) { r = r.replace(new RegExp(non_asciis[i], 'g'), i); }
+                  return r;
+                };
+
+
+                // FUNÇÃO que pega a URL e seta os paramentros GET
+                $.urlParam = function(name, url=window.location.href){
+                  var results = new RegExp('[\?&]' + name + '=([^&#]*)').exec(url);
+                  if (results==null)
+                  return "";
+                else
+                  return results[1] || 0;
+                }
+
+    </script>
+    <div class="row">
+        <div class="col1">
+            <a href="."><img legenda="Clique aqui para abrir um versiculo aleatório!" id="logo" src="./html/logo.png"></a><br>
+            <h2>Bíblia NVA <svg xmlns="http://www.w3.org/2000/svg" id="doe" legenda="Ajude este projeto!!" fill="currentColor" class="bi bi-chat-heart-fill" viewbox="0 0 16 16">
+            <path d="M8 15c4.418 0 8-3.134 8-7s-3.582-7-8-7-8 3.134-8 7c0 1.76.743 3.37 1.97 4.6-.097 1.016-.417 2.13-.771 2.966-.079.186.074.394.273.362 2.256-.37 3.597-.938 4.18-1.234A9.06 9.06 0 0 0 8 15Zm0-9.007c1.664-1.711 5.825 1.283 0 5.132-5.825-3.85-1.664-6.843 0-5.132Z"></path></svg></h2>
+            <div class="input-group" legenda="Faça uma busca por palavras">
+                <input type="text" name="buscar" id="buscar"  placeholder="Faça uma busca.."> <button onclick="set_versiculo=''; buscar_acao()"><svg style="color: rgb(0, 0, 0);" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-search" viewbox="0 0 16 16">
+                <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z" fill="#000000"></path></svg></button>
+            </div><br>
+            <select id="op_livros" legenda="Escolha os livros aqui">
+            </select><br>
+            <br>
+            <div class="op_capitulos" legenda="Escolha os versiculos aqui"></div><br>
+            <div class="qrfundo">
+                <div>
+                    <img id="logo_pix" src="./html/pix.png">
+                    <h5 style="style=" text-align:="">Clique no QR code para Copiar o PIX</h5>
+                    <div class="copy" legenda="Clique aqui para Copia e Colar PIX">
+                        <img class="img" src="./html/qrdoe.png">
+                        <div class="div_copia">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-files" viewbox="0 0 16 16">
+                            <path d="M13 0H6a2 2 0 0 0-2 2 2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h7a2 2 0 0 0 2-2 2 2 0 0 0 2-2V2a2 2 0 0 0-2-2zm0 13V4a2 2 0 0 0-2-2H5a1 1 0 0 1 1-1h7a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1zM3 4a1 1 0 0 1 1-1h7a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V4z"></path></svg><br>
+                            <span id="mudar_texto"></span><br>
+                            Clique para Copia e Colar PIX<br>
+                            <br>
+                            <span id="pix_copiacola">00020126730014BR.GOV.BCB.PIX01365db046b6-6867-4c00-ae46-e3d3895900300211Projeto NVA52040000530398654045.245802BR5924THIAGO CONDE DE OLIVEIRA6012JUIZ DE FORA62070503***63048E46</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col2">
+            <h1 id="livro"></h1><div id="capitulos"></div> <span id="total_busca"></span>
+            <p id="versos"></p>
+        </div>
+    </div>
+</body>
+</html>
